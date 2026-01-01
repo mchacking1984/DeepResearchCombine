@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!apiKey) {
       return Response.json(
-        { error: "Gemini API key not configured" },
+        { error: "Gemini API key not configured. Please set GEMINI_API_KEY environment variable." },
         { status: 500 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Use streaming for better UX with long outputs
     const response = await ai.models.generateContentStream({
-      model: "gemini-2.0-flash",
+      model: "models/gemini-2.0-flash",
       contents: prompt,
     });
 
@@ -51,8 +51,10 @@ export async function POST(request: NextRequest) {
             }
           }
           controller.close();
-        } catch (error) {
-          controller.error(error);
+        } catch (streamError) {
+          const errorMessage = streamError instanceof Error ? streamError.message : "Stream error";
+          controller.enqueue(new TextEncoder().encode(`\n\nError: ${errorMessage}`));
+          controller.close();
         }
       },
     });
@@ -65,8 +67,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error combining research:", error);
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
+    const errorDetails = error instanceof Error && 'cause' in error ? String(error.cause) : '';
     return Response.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
+      { error: errorMessage, details: errorDetails },
       { status: 500 }
     );
   }
