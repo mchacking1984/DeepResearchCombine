@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { NextRequest } from "next/server";
 
 interface ResearchInput {
@@ -31,24 +31,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-
-    // Use Gemini 3 Pro - latest advanced reasoning model
-    const model = genAI.getGenerativeModel({
-      model: "gemini-3-pro-preview",
-    });
-
+    const ai = new GoogleGenAI({ apiKey });
     const prompt = buildCombinePrompt(inputs);
 
     // Use streaming for better UX with long outputs
-    const result = await model.generateContentStream(prompt);
+    const response = await ai.models.generateContentStream({
+      model: "gemini-2.5-pro",
+      contents: prompt,
+    });
 
     // Create a readable stream from the response
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of result.stream) {
-            const text = chunk.text();
+          for await (const chunk of response) {
+            const text = chunk.text;
             if (text) {
               controller.enqueue(new TextEncoder().encode(text));
             }
