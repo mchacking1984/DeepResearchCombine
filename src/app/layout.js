@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Joke Generator',
-  description: 'Generate jokes using Gemini AI',
+  title: 'Deep Research Combine',
+  description: 'Combine deep research from multiple LLM providers',
 }
 
 export default function RootLayout({ children }) {
@@ -8,9 +8,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body style={{
         margin: 0,
-        padding: '40px',
+        padding: '40px 20px',
         fontFamily: 'system-ui, sans-serif',
-        backgroundColor: '#111',
+        backgroundColor: '#0a0a0a',
         color: '#fff',
         minHeight: '100vh'
       }}>
