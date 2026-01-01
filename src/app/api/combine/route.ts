@@ -33,9 +33,9 @@ export async function POST(request: NextRequest) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // Use Gemini 2.0 Flash - fast and capable reasoning model
+    // Use Gemini 2.5 Pro - advanced reasoning model
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-pro-exp-03-25",
     });
 
     const prompt = buildCombinePrompt(inputs);
