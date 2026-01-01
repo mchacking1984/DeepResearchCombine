@@ -35,8 +35,9 @@ export async function POST(request: NextRequest) {
     const prompt = buildCombinePrompt(inputs);
 
     // Use streaming for better UX with long outputs
+    // Note: gemini-3-pro-preview requires paid API key, gemini-3-flash-preview has free tier
     const response = await ai.models.generateContentStream({
-      model: "gemini-3-pro-preview",
+      model: "gemini-3-flash-preview",
       contents: prompt,
     });
 
