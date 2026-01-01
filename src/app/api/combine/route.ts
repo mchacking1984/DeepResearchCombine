@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest } from "next/server";
 
 interface ResearchInput {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!apiKey) {
       return Response.json(
-        { error: "Gemini API key not configured. Please set GEMINI_API_KEY environment variable." },
+        { error: "Gemini API key not configured" },
         { status: 500 }
       );
     }
@@ -31,30 +31,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
     const prompt = buildCombinePrompt(inputs);
 
-    // Use streaming for better UX with long outputs
-    const response = await ai.models.generateContentStream({
-      model: "models/gemini-2.0-flash",
-      contents: prompt,
-    });
+    // Use streaming for better UX
+    const result = await model.generateContentStream(prompt);
 
-    // Create a readable stream from the response
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of response) {
-            const text = chunk.text;
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
             if (text) {
               controller.enqueue(new TextEncoder().encode(text));
             }
           }
           controller.close();
-        } catch (streamError) {
-          const errorMessage = streamError instanceof Error ? streamError.message : "Stream error";
-          controller.enqueue(new TextEncoder().encode(`\n\nError: ${errorMessage}`));
-          controller.close();
+        } catch (err) {
+          controller.error(err);
         }
       },
     });
@@ -62,15 +58,12 @@ export async function POST(request: NextRequest) {
     return new Response(stream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
-        "Transfer-Encoding": "chunked",
       },
     });
   } catch (error) {
-    console.error("Error combining research:", error);
-    const errorMessage = error instanceof Error ? error.message : "Internal server error";
-    const errorDetails = error instanceof Error && 'cause' in error ? String(error.cause) : '';
+    console.error("Error:", error);
     return Response.json(
-      { error: errorMessage, details: errorDetails },
+      { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
     );
   }
@@ -84,40 +77,22 @@ function buildCombinePrompt(inputs: ResearchInput[]): string {
     )
     .join("\n\n---\n\n");
 
-  return `You are an expert research synthesizer. Your task is to combine multiple deep research outputs from different AI models into a single, comprehensive, and coherent research document.
+  return `You are an expert research synthesizer. Combine the following research outputs into a single, comprehensive document.
 
 ## Instructions:
+1. Identify where sources agree
+2. Resolve conflicts by preferring consensus
+3. Include unique insights from each source
+4. Create a well-structured document with executive summary
+5. Note source attribution for unique claims
 
-1. **Analyze all sources**: Carefully read through each research output provided below.
-
-2. **Identify commonalities**: Note where multiple sources agree on facts, conclusions, or recommendations.
-
-3. **Resolve conflicts**: When sources contradict each other:
-   - Evaluate which source provides better evidence or reasoning
-   - Note the disagreement if it's significant
-   - Prefer consensus when multiple sources agree over a single outlier
-
-4. **Synthesize unique insights**: Include valuable unique information from each source that others may have missed.
-
-5. **Maintain structure**: Create a well-organized document with:
-   - Clear headings and subheadings
-   - Logical flow of information
-   - Executive summary at the beginning
-   - Key findings and conclusions
-
-6. **Preserve accuracy**: Do not fabricate information. Only include facts and insights present in the source materials.
-
-7. **Note source attribution**: When presenting a unique insight or claim, briefly note which model(s) provided it (e.g., "According to ChatGPT..." or "Multiple sources confirm...").
-
-8. **Quality over quantity**: Focus on the most important and reliable information rather than including everything.
-
-## Source Research Outputs:
+## Sources:
 
 ${sourcesSection}
 
 ---
 
-## Your Combined Research Output:
+## Combined Research Output:
 
-Please synthesize the above research outputs into a single, comprehensive research document. Start with an executive summary, then organize the content into logical sections. Ensure the final output is coherent, well-structured, and represents the best insights from all sources.`;
+Synthesize the above into a coherent research document.`;
 }

@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function GET() {
   try {
@@ -8,30 +8,24 @@ export async function GET() {
       return Response.json({
         success: false,
         error: "GEMINI_API_KEY not set",
-        keyLength: 0,
       });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Simple test call
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: "Say hello in one word.",
-    });
+    const result = await model.generateContent("Say hello in one word.");
+    const text = result.response.text();
 
     return Response.json({
       success: true,
-      keyLength: apiKey.length,
-      keyPrefix: apiKey.substring(0, 8) + "...",
-      response: response.text,
+      response: text,
     });
   } catch (error) {
     return Response.json({
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-      errorName: error instanceof Error ? error.name : "Unknown",
-      errorStack: error instanceof Error ? error.stack?.split("\n").slice(0, 3) : [],
+      details: String(error),
     });
   }
 }
