@@ -29,7 +29,14 @@ export async function POST(request) {
 
     const prompt = `You are an expert research synthesizer. Your task is to combine multiple deep research outputs from different AI models into a single, comprehensive, and coherent research document.
 
-INSTRUCTIONS:
+FORMATTING REQUIREMENTS:
+- Output PLAIN TEXT only - no markdown, no hashtags (#), no asterisks (*), no bullet symbols
+- Use regular paragraph breaks and numbered lists (1. 2. 3.) for structure
+- Use UPPERCASE for section headings
+- The output should be ready to paste directly into Microsoft Word or Outlook email
+- Use clear paragraph spacing between sections
+
+CONTENT INSTRUCTIONS:
 1. Analyze all sources and identify where they agree
 2. When sources conflict, evaluate the evidence and note significant disagreements
 3. Include unique valuable insights from each source
@@ -44,7 +51,7 @@ ${sourcesText}
 
 ---
 
-Please provide the combined research output below:`
+Please provide the combined research output in plain text format:`
 
     const result = await model.generateContent(prompt)
     const text = result.response.text()
