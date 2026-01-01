@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Use streaming for better UX with long outputs
     const response = await ai.models.generateContentStream({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.0-flash",
       contents: prompt,
     });
 
