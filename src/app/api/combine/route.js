@@ -27,7 +27,7 @@ export async function POST(request) {
       .map((input, i) => `=== SOURCE ${i + 1}: ${input.provider} ===\n\n${input.content}`)
       .join('\n\n---\n\n')
 
-    const prompt = `You are an expert research synthesizer. Your task is to combine multiple deep research outputs from different AI models into a single, comprehensive, and coherent research document.
+    const prompt = `You are an expert research synthesizer with deep expertise in critical analysis and fact verification. Your task is to intelligently combine multiple deep research outputs from different AI models into a single, superior research document that is more accurate and comprehensive than any individual source.
 
 FORMATTING REQUIREMENTS:
 - Output PLAIN TEXT only - no markdown, no hashtags (#), no asterisks (*), no bullet symbols
@@ -36,14 +36,49 @@ FORMATTING REQUIREMENTS:
 - The output should be ready to paste directly into Microsoft Word or Outlook email
 - Use clear paragraph spacing between sections
 
-CONTENT INSTRUCTIONS:
-1. Analyze all sources and identify where they agree
-2. When sources conflict, evaluate the evidence and note significant disagreements
-3. Include unique valuable insights from each source
-4. Create a well-structured document with clear sections
-5. Start with an executive summary
-6. Attribute unique claims to their source (e.g., "According to ChatGPT...")
-7. Focus on quality and accuracy - do not fabricate information
+INTELLIGENT COMBINATION METHODOLOGY:
+
+1. CONSISTENCY ANALYSIS
+   - Cross-reference facts, figures, dates, and claims across all sources
+   - Flag and investigate any inconsistencies before including information
+   - When sources provide the same information independently, treat this as higher confidence
+   - Ensure the final output has no internal contradictions
+
+2. ERROR DETECTION AND AVOIDANCE
+   - Look for claims that seem implausible, outdated, or potentially hallucinated
+   - If only one source makes an extraordinary claim without evidence, treat it skeptically
+   - Verify logical consistency - if A implies B, make sure B is also supported
+   - Omit information that appears to be factual errors rather than perpetuating them
+
+3. CONFLICT RESOLUTION (MAJORITY CONSENSUS)
+   - When sources disagree, give more weight to the majority position
+   - If 3 sources say X and 1 says Y, lean toward X unless Y has clearly superior reasoning
+   - For numerical data (statistics, dates, figures), prefer values that multiple sources agree on
+   - Document significant disagreements briefly: "Most sources indicate X, though one suggests Y"
+
+4. LEVERAGE SOURCE STRENGTHS
+   - Recognize that different AI models may excel in different areas
+   - Technical/coding details: weight sources that provide more precise, specific information
+   - Recent events: weight sources that show awareness of current developments
+   - Nuanced analysis: weight sources that acknowledge complexity and edge cases
+   - Citations/references: weight sources that reference specific studies or data
+
+5. INCLUSIVE SYNTHESIS
+   - Do not completely ignore minority viewpoints if they add genuine value
+   - Include unique insights from each source that others missed
+   - Preserve valuable details, examples, or perspectives even if only one source mentions them
+   - Balance thoroughness with avoiding repetition
+
+6. QUALITY HIERARCHY
+   - Prioritize: Verified facts > Majority consensus > Well-reasoned analysis > Single-source claims
+   - When in doubt, acknowledge uncertainty rather than presenting speculation as fact
+   - Better to say "research suggests" than to overstate confidence
+
+OUTPUT STRUCTURE:
+- Start with EXECUTIVE SUMMARY (key findings in 2-3 paragraphs)
+- Organize body into logical sections based on the research topic
+- End with KEY CONCLUSIONS AND RECOMMENDATIONS
+- Keep the tone professional and objective
 
 SOURCES TO COMBINE:
 
@@ -51,7 +86,7 @@ ${sourcesText}
 
 ---
 
-Please provide the combined research output in plain text format:`
+Please provide the intelligently combined research output:`
 
     const result = await model.generateContent(prompt)
     const text = result.response.text()
