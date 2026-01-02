@@ -11,7 +11,7 @@ export async function POST(request) {
       )
     }
 
-    const { inputs } = await request.json()
+    const { inputs, customInstructions } = await request.json()
 
     if (!inputs || inputs.length < 2) {
       return Response.json(
@@ -26,6 +26,13 @@ export async function POST(request) {
     const sourcesText = inputs
       .map((input, i) => `=== SOURCE ${i + 1}: ${input.provider} ===\n\n${input.content}`)
       .join('\n\n---\n\n')
+
+    const customInstructionsSection = customInstructions
+      ? `\nUSER'S CUSTOM INSTRUCTIONS (IMPORTANT - incorporate these into the output):
+${customInstructions}
+
+`
+      : ''
 
     const prompt = `You are an expert research synthesizer with deep expertise in critical analysis and fact verification. Your task is to intelligently combine multiple deep research outputs from different AI models into a single, superior research document that is more accurate and comprehensive than any individual source.
 
@@ -79,7 +86,7 @@ OUTPUT STRUCTURE:
 - Organize body into logical sections based on the research topic
 - End with KEY CONCLUSIONS AND RECOMMENDATIONS
 - Keep the tone professional and objective
-
+${customInstructionsSection}
 SOURCES TO COMBINE:
 
 ${sourcesText}

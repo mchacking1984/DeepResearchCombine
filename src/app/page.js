@@ -12,6 +12,7 @@ const providers = [
 
 export default function Home() {
   const [inputs, setInputs] = useState({})
+  const [customInstructions, setCustomInstructions] = useState('')
   const [output, setOutput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -35,7 +36,7 @@ export default function Home() {
       const res = await fetch('/api/combine', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inputs: filledInputs })
+        body: JSON.stringify({ inputs: filledInputs, customInstructions: customInstructions.trim() })
       })
 
       const data = await res.json()
@@ -112,6 +113,36 @@ export default function Home() {
             />
           </div>
         ))}
+      </div>
+
+      <div style={{ marginBottom: '1.5rem' }}>
+        <label style={{
+          display: 'block',
+          marginBottom: '8px',
+          fontWeight: '600',
+          color: '#ccc'
+        }}>
+          Custom Instructions (Optional)
+        </label>
+        <textarea
+          placeholder="Add any specific instructions for how you want the research combined. For example: 'Focus more on the financial aspects' or 'Write in a more casual tone' or 'Include a section comparing the different viewpoints'..."
+          value={customInstructions}
+          onChange={(e) => setCustomInstructions(e.target.value)}
+          style={{
+            width: '100%',
+            minHeight: '80px',
+            padding: '12px',
+            fontSize: '14px',
+            border: '2px solid #555',
+            borderRadius: '8px',
+            backgroundColor: '#111',
+            color: '#fff',
+            resize: 'vertical',
+            outline: 'none',
+            boxSizing: 'border-box',
+            fontFamily: 'inherit'
+          }}
+        />
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
